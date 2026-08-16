@@ -1,0 +1,39 @@
+diff --git a/obfuscator/BogusControlFlow.cpp b/obfuscator/BogusControlFlow.cpp
+old mode 100644
+new mode 100755
+index bae5acb..d0262ca
+--- a/obfuscator/BogusControlFlow.cpp
++++ b/obfuscator/BogusControlFlow.cpp
+@@ -187,7 +187,7 @@ void BogusControlFlow::addBogusFlow(BasicBlock * basicBlock, Function &F) {
+   // for the first block. We have to let the phi nodes in the first part, because they
+   // actually are updated in the second part according to them.
+   BasicBlock::iterator i1 = basicBlock->begin();
+-  if(basicBlock->getFirstNonPHIOrDbgOrLifetime())
++  if(basicBlock->getFirstNonPHIOrDbgOrLifetime() != basicBlock->end())
+     i1 = (BasicBlock::iterator)basicBlock->getFirstNonPHIOrDbgOrLifetime();
+   Twine *var;
+   var = new Twine("originalBB");
+diff --git a/obfuscator/Pass.cpp b/obfuscator/Pass.cpp
+old mode 100644
+new mode 100755
+index fb8f4c5..7b616fd
+--- a/obfuscator/Pass.cpp
++++ b/obfuscator/Pass.cpp
+@@ -170,11 +170,12 @@ LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo llvmGetPassPluginInfo() {
+         .PluginVersion = PLUGIN_VER,
+         .RegisterPassBuilderCallbacks = [](PassBuilder &PB) {
+             PB.registerPipelineStartEPCallback(
+-                [](ModulePassManager& MPM
+-#if LLVM_VERSION_MAJOR >= 12
+-                , OptimizationLevel Level
+-#endif
+-                ) {
++                [](ModulePassManager& MPM, OptimizationLevel Level) {
++                    ts_init = get_ts_ms();
++                    MPM.addPass(PLUGIN_NAME());
++            });
++            PB.registerOptimizerLastEPCallback(
++                [](ModulePassManager& MPM, OptimizationLevel Level, ThinOrFullLTOPhase Phase) {
+                     ts_init = get_ts_ms();
+                     MPM.addPass(PLUGIN_NAME());
+             });

@@ -1,0 +1,31 @@
+# ── Secrets / local config ────────────────────────────────
+config.yaml
+
+# ── Python ─────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# ── Generated pipeline artifacts ───────────────────────────
+obfuscated_source_files/
+build_*/
+decompiled/
+results/
+*.csv
+*.log
+
+# ── macOS noise ────────────────────────────────────────────
+.DS_Store
+._*
+AppleDouble
+
+# ── IDA database leftovers ────────────────────────────────
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+*.idb
+*.i64

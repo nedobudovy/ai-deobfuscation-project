@@ -1,0 +1,12 @@
+[theme]
+# White + green palette
+base = "light"
+primaryColor = "#2e7d32"            # green accent (buttons, sliders, links)
+backgroundColor = "#ffffff"          # white main background
+secondaryBackgroundColor = "#e8f5e9" # light-green sidebar / cards
+textColor = "#1b3a1f"                # dark green-tinted text
+font = "sans serif"
+
+[server]
+headless = true
+port = 8501

@@ -1,0 +1,119 @@
+# ============================================================
+# config.yaml.example — copy to config.yaml and fill in keys.
+#
+#   cp config.yaml.example config.yaml
+#
+# config.yaml is gitignored; never commit real API keys.
+# Only providers with a non-empty key + enabled: true run.
+# ============================================================
+api_keys:
+  openai: ""
+  anthropic: ""
+  google: ""
+  xai: ""
+  openrouter: ""
+  github: ""
+  huggingface: ""
+  groq: ""
+
+models:
+  # ══════════════════════════════════════════════════════════
+  # PAID — via OpenRouter (single gateway, one key)
+  # ══════════════════════════════════════════════════════════
+
+  # Final study lineup — enable the models you have budget for.
+  - id: anthropic/claude-sonnet-4.6
+    provider: openrouter
+    enabled: true
+
+  - id: x-ai/grok-4.3
+    provider: openrouter
+    enabled: true
+
+  - id: google/gemini-2.5-pro
+    provider: openrouter
+    enabled: true
+
+  - id: deepseek/deepseek-chat-v3-0324
+    provider: openrouter
+    enabled: true
+
+  - id: openai/gpt-4o
+    provider: openrouter
+    enabled: false     # dropped: most expensive ($0.05/call)
+
+  - id: openai/o4-mini
+    provider: openrouter
+    enabled: false     # dropped: 2nd most expensive
+
+  - id: deepseek/deepseek-coder-v2:free
+    provider: openrouter
+    enabled: false     # optional
+
+  # ══════════════════════════════════════════════════════════
+  # FREE — daily quotas (Groq / GitHub Models / HuggingFace)
+  # ══════════════════════════════════════════════════════════
+
+  - id: llama-3.3-70b-versatile
+    provider: groq
+    enabled: false     # free; daily quota
+
+  - id: qwen/qwen3-32b
+    provider: groq
+    enabled: false     # broken — emits <think> blocks instead of C code
+
+  - id: meta-llama/llama-4-scout-17b-16e-instruct
+    provider: groq
+    enabled: true      # best free model in the study
+
+  - id: gpt-4o-mini
+    provider: github
+    enabled: true
+
+  - id: Meta-Llama-3.1-8B-Instruct
+    provider: github
+    enabled: false     # too small — truncated, trivial outputs
+
+  - id: Qwen/Qwen2.5-Coder-32B-Instruct
+    provider: huggingface
+    enabled: false     # dies fast on daily quotas
+
+  - id: meta-llama/Llama-3.3-70B-Instruct
+    provider: huggingface
+    enabled: false     # dies fast on daily quotas
+
+prompts:
+  - simple
+  - zero_shot
+  - one_shot
+  - few_shot
+  - chain_of_thought
+  - role_expert
+
+pipeline:
+  # Which build variants to process (empty = all found in decompiled/)
+  build_variants: []
+
+  # Max files per variant (0 = unlimited)
+  max_files_per_variant: 0
+
+  # Output root directory
+  output_dir: "results"
+
+  # Delay between API calls (seconds)
+  # Groq free: 30 RPM = 2s min; 2.5s gives headroom
+  request_delay: 2.5
+
+  # Max retries on API error
+  max_retries: 3
+
+  # Timeout per request (seconds) — applies to the read phase of httpx.
+  # Connect/write/pool timeouts are hard-coded to 10/30/10s in models_api.py.
+  # 150s covers slow reasoning models but kills silent hangs within 2.5 min.
+  timeout: 150
+
+  # Save raw API response metadata (tokens, latency, etc.)
+  save_metadata: true
+
+  # Skip if result already exists (for resuming interrupted runs)
+  skip_existing: true
