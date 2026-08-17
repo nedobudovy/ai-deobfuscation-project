@@ -29,11 +29,28 @@ command -v git >/dev/null || { echo "ERROR: git not found"; exit 1; }
 command -v cmake >/dev/null || { echo "ERROR: cmake not found"; exit 1; }
 command -v ninja >/dev/null || { echo "ERROR: ninja not found"; exit 1; }
 
+# Python + pip: prefer an active venv or the repo-local .venv (Homebrew's
+# system Python refuses pip installs since PEP 668).
+if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "$VIRTUAL_ENV/bin/python" ]; then
+    PYTHON="$VIRTUAL_ENV/bin/python"
+elif [ -x ".venv/bin/python" ]; then
+    PYTHON=".venv/bin/python"
+else
+    PYTHON="$(command -v python3 || echo python)"
+    echo "WARNING: no venv detected — using $PYTHON."
+    echo "         If pip refuses to install (PEP 668, Homebrew Python), run:"
+    echo "         python3 -m venv .venv && source .venv/bin/activate && ./setup.sh"
+fi
+
 if [ ! -x "$LLVM_HOME/bin/clang" ]; then
     echo "ERROR: Homebrew LLVM not found at $LLVM_HOME"
     echo "  Install with: brew install llvm cmake ninja"
     exit 1
 fi
+
+# This repo lives on a volume that emits AppleDouble (._*) junk files, which
+# corrupt git pack indexes if they land inside .git. Clean them out.
+scrub() { find "$1" -name '._*' -delete 2>/dev/null; git -C "$1" gc --quiet 2>/dev/null || true; }
 
 # ── 1. obfusCate ───────────────────────────────────────────────────────────
 if [ ! -d obfusCate ]; then
@@ -43,6 +60,7 @@ if [ ! -d obfusCate ]; then
 else
     echo "==> obfusCate/ already present — skipping clone"
 fi
+scrub obfusCate
 
 # The study ran with a few local patches on top of the pinned upstream commit
 # (macOS include path for pycparser, a void-parameter crash fix, hex-literal
@@ -56,10 +74,10 @@ for p in patches/obfusCate/*.patch; do
 done
 
 echo "==> Installing obfusCate Python dependencies"
-pip install -r obfusCate/requirements.txt
+"$PYTHON" -m pip install -r obfusCate/requirements.txt
 
 echo "==> Verifying obfusCate CLI"
-python obfusCate/obf_cli.py --help >/dev/null 2>&1 || true
+"$PYTHON" obfusCate/obf_cli.py --help >/dev/null 2>&1 || true
 
 # ── 2. llvm-pass-hikari plugin ─────────────────────────────────────────────
 if [ ! -d llvm-pass-hikari ]; then
@@ -69,6 +87,7 @@ if [ ! -d llvm-pass-hikari ]; then
 else
     echo "==> llvm-pass-hikari/ already present — skipping clone"
 fi
+scrub llvm-pass-hikari
 
 # Local patches used by the study on top of the pinned upstream commit:
 # a BCF crash fix and registering the pass on the optimizer-last extension

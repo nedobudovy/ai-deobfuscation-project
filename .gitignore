@@ -16,6 +16,10 @@ results/
 *.csv
 *.log
 
+# ── Third-party clones (created by ./setup.sh) ─────────────
+obfusCate/
+llvm-pass-hikari/
+
 # ── macOS noise ────────────────────────────────────────────
 .DS_Store
 ._*

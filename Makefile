@@ -19,7 +19,10 @@
 # ==========================================
 
 # 1. Compiler and plugin
-CC     ?= /opt/homebrew/opt/llvm/bin/clang
+# NOTE: hard assignment on purpose — make's built-in CC=cc would win over
+# `?=` and the OLLVM plugin (built for LLVM's plugin API) would be rejected.
+# A command-line override still works: make CC=/path/to/clang
+CC     = /opt/homebrew/opt/llvm/bin/clang
 LLVM_HOME ?= /opt/homebrew/opt/llvm
 PLUGIN ?= $(abspath llvm-pass-hikari/obfuscator/build/Obfuscator.dylib)
 
@@ -32,8 +35,8 @@ OBF_SRCS = $(wildcard $(OBF_DIR)/*.c)
 # 2. SDK and library paths (macOS)
 MAC_SDK = $(shell xcrun --show-sdk-path 2>/dev/null)
 CFLAGS = -O0 -Wall -Wno-error=incompatible-function-pointer-types \
-         -isysroot $(MAC_SDK) -I$(LLVM_HOME)/include
-LDFLAGS = -L$(LLVM_HOME)/lib -lSDL2
+         -isysroot $(MAC_SDK) -I/opt/homebrew/include
+LDFLAGS = -L/opt/homebrew/lib -lSDL2
 
 # 3. Obfuscation passes (set via make flags)
 #    FLA=1          control flow flattening
@@ -106,12 +109,13 @@ all: plugin-check policy $(TARGETS) $(OBF_TARGETS)
 	@echo "  Obfuscated binaries: $(OBF_BUILD_DIR)/"
 	@echo "========================================"
 
-# Warn loudly if the plugin is missing, but keep going (plugin may be
-# disabled deliberately with NO_OBFUSCATION=1).
+# Fail fast if an obfuscated build is requested without the plugin —
+# proceeding would silently produce non-obfuscated binaries.
 plugin-check:
 	@if [ -n "$(PLUGIN_FLAG)" ] && [ ! -f "$(PLUGIN)" ]; then \
-		echo "WARNING: plugin not found: $(PLUGIN)"; \
-		echo "         Run ./setup.sh to fetch and build llvm-pass-hikari."; \
+		echo "ERROR: plugin not found: $(PLUGIN)"; \
+		echo "       Run ./setup.sh to fetch and build llvm-pass-hikari."; \
+		exit 1; \
 	fi
 
 # Standard sources
@@ -143,11 +147,15 @@ ifneq ($(BUILD_SUFFIX),)
 else
 	@echo "No obfuscation passes — skipping $(BUILD_DIR)/policy.json"
 endif
-	-@python3 gen_policy.py --src-dir $(abspath $(OBF_DIR)) --out $(OBF_BUILD_DIR)/policy.json \
-		$(if $(ALL),--fla --sub --bcf) \
-		$(if $(FLA),--fla) $(if $(SUB),--sub) $(if $(BCF),--bcf) $(if $(SPLIT),--split) \
-		$(if $(BUILD_SUFFIX),,--fla --sub --bcf)
-	@echo "Generated $(OBF_BUILD_DIR)/policy.json"
+	@if [ -d "$(OBF_DIR)" ]; then \
+		python3 gen_policy.py --src-dir $(abspath $(OBF_DIR)) --out $(OBF_BUILD_DIR)/policy.json \
+			$(if $(ALL),--fla --sub --bcf) \
+			$(if $(FLA),--fla) $(if $(SUB),--sub) $(if $(BCF),--bcf) $(if $(SPLIT),--split) \
+			$(if $(BUILD_SUFFIX),,--fla --sub --bcf) && \
+		echo "Generated $(OBF_BUILD_DIR)/policy.json"; \
+	else \
+		echo "Skipping $(OBF_BUILD_DIR)/policy.json — $(OBF_DIR)/ not found (run ./obfuscate_source_code.sh first)"; \
+	fi
 endif
 
 clean:

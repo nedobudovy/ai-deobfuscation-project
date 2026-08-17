@@ -1,3 +1,18 @@
+diff --git a/common.h b/common.h
+old mode 100644
+new mode 100755
+index 0f2bcf3..e675c59
+--- a/common.h
++++ b/common.h
+@@ -14,7 +14,7 @@
+ #include "llvm/Linker/Linker.h"
+ #include "llvm/Pass.h"
+ #include "llvm/Passes/PassBuilder.h"
+-#include "llvm/Passes/PassPlugin.h"
++#include "llvm/Plugins/PassPlugin.h"
+ #include "llvm/Support/FormatVariadic.h"
+ #include "llvm/Support/Path.h"
+ #include "llvm/Support/raw_ostream.h"
 diff --git a/obfuscator/BogusControlFlow.cpp b/obfuscator/BogusControlFlow.cpp
 old mode 100644
 new mode 100755

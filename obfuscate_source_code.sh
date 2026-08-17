@@ -44,11 +44,20 @@ fi
 # Run from inside obfusCate so the fake-libc include path resolves.
 cd "$OBFUSCATE_DIR"
 
+# Prefer the venv python (Homebrew's system python refuses pip installs)
+if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "$VIRTUAL_ENV/bin/python" ]; then
+    PYTHON="$VIRTUAL_ENV/bin/python"
+elif [ -x "$REPO_ROOT/.venv/bin/python" ]; then
+    PYTHON="$REPO_ROOT/.venv/bin/python"
+else
+    PYTHON="python"
+fi
+
 for src in "${files[@]}"; do
     filename=$(basename "$src")
     output="$OUTPUT_DIR/obfuscated_$filename"
     echo "Processing: $src → $output"
-    python obf_cli.py "$src" "$output" -l "$COMPOSITION" -s
+    "$PYTHON" obf_cli.py "$src" "$output" -l "$COMPOSITION" -s
 done
 
 echo "Done. All files processed."
