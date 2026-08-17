@@ -100,7 +100,7 @@ class EvalResult:
     S: int        # 0–2  структурна схожість
     R: int        # 0–2  читабельність
     total: int    # 0–6
-    grade: int    # 0–5  (шкала диплому)
+    grade: int    # 0–5  (grade scale)
     details: dict
 
 

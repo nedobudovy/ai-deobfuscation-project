@@ -4,7 +4,7 @@ app.py — Streamlit web UI for AI-assisted deobfuscation.
 Pipeline: upload binary → IDA Pro Hex-Rays pseudocode → best LLM + prompt
           → deobfuscated C source.
 
-Best configuration (per diploma F+S+R study, deobf_aware run):
+Best configuration (per F+S+R study, deobf_aware run):
   • Model  : x-ai/grok-4.3  (5.57/6, 100% compile)
   • Prompt : few_shot       (5.41/6)
 

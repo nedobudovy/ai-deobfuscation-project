@@ -7,7 +7,7 @@ on top of source-level obfuscation — from **IDA Pro Hex-Rays pseudocode**,
 and automatically grades every reconstructed program with a formalized
 **F + S + R rubric** (Functionality, Structure, Readability; 0–6 points).
 
-Built as a bachelor thesis (2026) and used to run a full-factorial comparison
+Used for an academic paper (2026): the pipeline ran a full-factorial comparison
 of **6 LLMs × 3 prompt strategies × 8 obfuscation variants**, producing
 1,502 automatically graded outputs.
 
@@ -55,7 +55,7 @@ of **6 LLMs × 3 prompt strategies × 8 obfuscation variants**, producing
 - Raw IDA pseudocode ("no-AI baseline") scores **0/6** — any score above zero
   demonstrates real model value.
 
-> The numbers above come from the `deobf_aware` run described in the thesis
+> The numbers above come from the `deobf_aware` run described in the paper
 > (8 hardest variants × 6 models × 3 prompts × 10 files). Re-run them with
 > this repository's pipeline.
 
@@ -354,6 +354,6 @@ timing/token metrics. Model and prompt are switchable in the sidebar.
 
 ---
 
-*Pipeline used for the bachelor thesis «AI-Assisted Deobfuscation of C Code
+*Pipeline used for the academic paper «AI-Assisted Deobfuscation of C Code
 Based on Large Language Models» (2026). If you use this work in a paper,
 please cite it.*
